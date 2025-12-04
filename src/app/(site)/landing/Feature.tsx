@@ -10,7 +10,7 @@ import { IoLanguageOutline } from "react-icons/io5";
 
 export const Feature = () => {
   return (
-    <div className="mt-20 ">
+    <div>
       <div className="flex flex-col gap-10">
         <Title text="Features" />
         <Headline text="Everything students and staff need in one AI assistant" />

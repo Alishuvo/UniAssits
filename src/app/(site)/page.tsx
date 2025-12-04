@@ -2,6 +2,7 @@ import { Navbar } from "./landing/Navbar";
 import { Banner } from "./landing/Banner";
 import { Feature } from "./landing/Feature";
 import { Works } from "./landing/Works";
+import { Teams } from "./landing/Teams";
 
 export default function Home() {
   return (
@@ -10,10 +11,11 @@ export default function Home() {
         <p>Welcome to UniAssists</p>
       </div>
       <Navbar />
-      <Banner />
-      <div className="">
+      <div className="flex flex-col gap-20">
+        <Banner />
         <Feature />
         <Works />
+        <Teams/>
       </div>
     </main>
   );
