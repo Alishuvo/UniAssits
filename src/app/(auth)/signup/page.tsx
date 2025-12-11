@@ -1,9 +1,9 @@
 "use client";
 
+import { Description } from "@/components/common/Description";
+import { Headline } from "@/components/common/Headline";
 import { Button } from "@/components/common/ui/buttons/Button";
 import Input from "@/components/common/ui/buttons/Input";
-import { Description } from "@/components/landing/Description";
-import { Headline } from "@/components/landing/Headline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -28,11 +28,14 @@ const SignUp = () => {
     setErrors({});
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/sign-up/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/sign-up/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (response.status === 201) {
         router.push("/login");
@@ -97,8 +100,12 @@ const SignUp = () => {
               onChange={handleChange}
             />
           </div>
-          {errors.first_name && <p className="text-red-500 text-sm">{errors.first_name[0]}</p>}
-          {errors.last_name && <p className="text-red-500 text-sm">{errors.last_name[0]}</p>}
+          {errors.first_name && (
+            <p className="text-red-500 text-sm">{errors.first_name[0]}</p>
+          )}
+          {errors.last_name && (
+            <p className="text-red-500 text-sm">{errors.last_name[0]}</p>
+          )}
           <Input
             label="university email"
             name="email"
@@ -107,7 +114,9 @@ const SignUp = () => {
             value={formData.email}
             onChange={handleChange}
           />
-          {errors.email && <p className="text-red-500 text-sm">{errors.email[0]}</p>}
+          {errors.email && (
+            <p className="text-red-500 text-sm">{errors.email[0]}</p>
+          )}
           <div className="flex justify-between items-center">
             <Input
               label="password"
@@ -126,9 +135,17 @@ const SignUp = () => {
               onChange={handleChange}
             />
           </div>
-          {errors.password && <p className="text-red-500 text-sm">{errors.password[0]}</p>}
-          {errors.non_field_errors && <p className="text-red-500 text-sm">{errors.non_field_errors[0]}</p>}
-          <Button type="submit" label="Create Account" className="bg-[#DC6D18]" />
+          {errors.password && (
+            <p className="text-red-500 text-sm">{errors.password[0]}</p>
+          )}
+          {errors.non_field_errors && (
+            <p className="text-red-500 text-sm">{errors.non_field_errors[0]}</p>
+          )}
+          <Button
+            type="submit"
+            label="Create Account"
+            className="bg-[#DC6D18]"
+          />
           <p className="text-black">
             Already have an account? Switch to {" "}
             <Link href={"/login"} className="font-bold">

@@ -1,6 +1,6 @@
-import { Description } from "@/components/landing/Description";
-import { Headline } from "@/components/landing/Headline";
-import { Title } from "@/components/landing/Title";
+import { Description } from "@/components/common/Description";
+import { Headline } from "@/components/common/Headline";
+import { Title } from "@/components/common/Title";
 import { CiCalendarDate } from "react-icons/ci";
 import { FaFile, FaRegFileAlt } from "react-icons/fa";
 import {

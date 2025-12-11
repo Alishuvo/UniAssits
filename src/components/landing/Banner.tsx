@@ -1,7 +1,7 @@
+import { Description } from "@/components/common/Description";
+import { Headline } from "@/components/common/Headline";
 import { BtnGradient } from "@/components/common/ui/buttons/BtnGradient";
 import { BtnOutline } from "@/components/common/ui/buttons/BtnOutline";
-import { Description } from "@/components/landing/Description";
-import { Headline } from "@/components/landing/Headline";
 import Image from "next/image";
 import { FaArrowUp } from "react-icons/fa6";
 import { ImAttachment } from "react-icons/im";
@@ -10,10 +10,16 @@ export const Banner = () => {
   return (
     <div className="flex flex-col items-center gap-40 md:flex-row mt-10 mx-20">
       <div className="w-1/2 flex flex-col gap-5">
-        <Headline text="Your University, One Question away." className="text-left"/>
-        <Description text="Ask about fees, departments, locations, bus schedules, contacts,
+        <Headline
+          text="Your University, One Question away."
+          className="text-left"
+        />
+        <Description
+          text="Ask about fees, departments, locations, bus schedules, contacts,
           admissions & more. Upload PDFs and our AI learns automatically — with
-          cited answers and relevant images." className="text-left" />
+          cited answers and relevant images."
+          className="text-left"
+        />
         <div className="flex gap-5">
           <BtnGradient label="Start Asking" />
           <BtnOutline label="Explore Features" />

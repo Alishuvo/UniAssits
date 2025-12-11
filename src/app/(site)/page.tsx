@@ -1,8 +1,9 @@
-import { Navbar } from "./landing/Navbar";
-import { Banner } from "./landing/Banner";
-import { Feature } from "./landing/Feature";
-import { Works } from "./landing/Works";
-import { Teams } from "./landing/Teams";
+import { Navbar } from "../../components/landing/Navbar";
+import { Banner } from "../../components/landing/Banner";
+import { Feature } from "../../components/landing/Feature";
+import { Works } from "../../components/landing/Works";
+import { Teams } from "../../components/landing/Teams";
+import ProfileCard from "../../components/landing/ProfileCard";
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
         <Feature />
         <Works />
         <Teams/>
+        <ProfileCard />
       </div>
     </main>
   );

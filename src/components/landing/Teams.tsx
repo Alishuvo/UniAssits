@@ -1,7 +1,6 @@
-import { Description } from "@/components/landing/Description";
-import { Headline } from "@/components/landing/Headline";
-import { Title } from "@/components/landing/Title";
-import React from "react";
+import { Description } from "@/components/common/Description";
+import { Headline } from "@/components/common/Headline";
+import { Title } from "@/components/common/Title";
 
 export const Teams = () => {
   return (

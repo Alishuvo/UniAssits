@@ -1,8 +1,8 @@
 "use client";
-import { Headline } from "@/components/landing/Headline";
-import { GrAttachment } from "react-icons/gr";
-import React, { useState, useEffect, useRef, ChangeEvent, FormEvent } from "react";
+import { Headline } from "@/components/common/Headline";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { FaArrowUp } from "react-icons/fa6";
+import { GrAttachment } from "react-icons/gr";
 
 interface Message {
   user?: string;
@@ -21,10 +21,10 @@ const ChatPage = () => {
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   const getAccessToken = () => {
-    const cookies = document.cookie.split(';');
+    const cookies = document.cookie.split(";");
     for (let cookie of cookies) {
-      const [name, value] = cookie.trim().split('=');
-      if (name === 'accessToken') {
+      const [name, value] = cookie.trim().split("=");
+      if (name === "accessToken") {
         return value;
       }
     }
@@ -58,14 +58,17 @@ const ChatPage = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify({ message: inputMessage }),
         });
         data = await response.json();
         if (response.ok) {
           setSessionId(data.session_id || null);
-          setMessages((prevMessages) => [...prevMessages, { ai: data.ai_reply }]);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { ai: data.ai_reply },
+          ]);
         }
       } else {
         // Continue existing chat
@@ -73,13 +76,19 @@ const ChatPage = () => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${accessToken}`,
+            Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ message: inputMessage, session_id: sessionId }),
+          body: JSON.stringify({
+            message: inputMessage,
+            session_id: sessionId,
+          }),
         });
         data = await response.json();
         if (response.ok) {
-          setMessages((prevMessages) => [...prevMessages, { ai: data.ai_reply }]);
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { ai: data.ai_reply },
+          ]);
         }
       }
 
@@ -93,7 +102,8 @@ const ChatPage = () => {
 
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -109,15 +119,25 @@ const ChatPage = () => {
       ) : (
         <div ref={chatContainerRef} className="flex-grow overflow-y-auto mb-4">
           {messages.map((msg, index) => (
-            <div key={index} className={`p-2 ${msg.user ? "text-right" : "text-left"}`}>
-              <div className={`inline-block p-2 rounded-lg ${msg.user ? "bg-blue-500 text-white" : "bg-gray-200"}`}>
+            <div
+              key={index}
+              className={`p-2 ${msg.user ? "text-right" : "text-left"}`}
+            >
+              <div
+                className={`inline-block p-2 rounded-lg ${
+                  msg.user ? "bg-blue-500 text-white" : "bg-gray-200"
+                }`}
+              >
                 {msg.user || msg.ai}
               </div>
             </div>
           ))}
         </div>
       )}
-      <form onSubmit={handleSendMessage} className="flex justify-between items-center bg-[#DC6D1833] rounded-full py-2 px-5 w-full max-w-3xl mx-auto">
+      <form
+        onSubmit={handleSendMessage}
+        className="flex justify-between items-center bg-[#DC6D1833] rounded-full py-2 px-5 w-full max-w-3xl mx-auto"
+      >
         <div className="flex items-center gap-5 w-full">
           <GrAttachment className="text-2xl text-[#E07522]" />
           <input
@@ -127,10 +147,15 @@ const ChatPage = () => {
             id="message"
             className="outline-0 bg-transparent w-full"
             value={inputMessage}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setInputMessage(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setInputMessage(e.target.value)
+            }
           />
         </div>
-        <button type="submit" className="p-4 rounded-full bg-[linear-gradient(137deg,#E07522_4.45%,#F8A65D_97.83%)] cursor-pointer">
+        <button
+          type="submit"
+          className="p-4 rounded-full bg-[linear-gradient(137deg,#E07522_4.45%,#F8A65D_97.83%)] cursor-pointer"
+        >
           <FaArrowUp className="text-white text-2xl" />
         </button>
       </form>

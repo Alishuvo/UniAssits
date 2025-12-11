@@ -1,9 +1,9 @@
 "use client";
 
+import { Description } from "@/components/common/Description";
+import { Headline } from "@/components/common/Headline";
 import { Button } from "@/components/common/ui/buttons/Button";
 import Input from "@/components/common/ui/buttons/Input";
-import { Description } from "@/components/landing/Description";
-import { Headline } from "@/components/landing/Headline";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -19,11 +19,14 @@ const Login = () => {
     setError("");
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/users/login/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/users/login/`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
@@ -32,7 +35,9 @@ const Login = () => {
         router.push("/chat");
       } else {
         const errorData = await response.json();
-        setError(errorData.detail || "Failed to login. Please check your credentials.");
+        setError(
+          errorData.detail || "Failed to login. Please check your credentials."
+        );
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
