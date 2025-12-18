@@ -4,6 +4,9 @@ import { Feature } from "../../components/landing/Feature";
 import { Works } from "../../components/landing/Works";
 import { Teams } from "../../components/landing/Teams";
 import ProfileCard from "../../components/landing/ProfileCard";
+import { Admin } from "@/components/landing/Admin";
+import { SecondaryBanner } from "@/components/landing/SecondaryBanner";
+import Footer from "@/components/landing/Footer";
 
 
 export type ProfileDataType = {
@@ -86,14 +89,17 @@ export default function Home() {
         <Feature />
         <Works />
         <Teams/>
-        <div className="columns-1 md:columns-2 gap-x-10 max-w-3xl mx-auto md:pt-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5 max-w-3xl mx-auto">
           {ProfileData?.map((profile, index) => (
-          <div key={index} className="mb-10 break-inside-avoid">
+          <div key={index} className={index%2 === 1 ? "md:mt-64" : "mt-0"}>
             <ProfileCard  profile={profile} />
           </div>
         ))}
         </div>
+        <Admin/>
+        <SecondaryBanner/>
       </div>
+      <Footer/>
     </main>
   );
 }
