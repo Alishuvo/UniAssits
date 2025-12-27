@@ -47,7 +47,7 @@ const Login = () => {
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="flex bg-[linear-gradient(92deg,#FFF4E4_1.63%,rgba(232,175,127,0.31)_97.99%)] bg-clip-text text-transparent shadow-lg mx-20">
-        <div className="w-1/2 text-[#FFF4E4] p-20 bg-linear-to-r from-[#624E40] to-[#937964] flex flex-col gap-5 rounded-l-md">
+        <div className="w-1/2 text-[#FFF4E4] p-32 bg-linear-to-r from-[#624E40] to-[#937964] flex flex-col gap-5 rounded-l-2xl">
           <Headline
             text="Welcome 👋Your university, one question away."
             className="text-left text-[#FFF4E4]"
@@ -74,7 +74,7 @@ const Login = () => {
         </div>
         <form
           onSubmit={handleLogin}
-          className="w-1/2 rounded-r-md bg-[#eec49b] p-20 flex flex-col gap-5"
+          className="w-1/2 rounded-r-2xl bg-[#eec49b] p-20 flex flex-col gap-5"
         >
           <Input
             label="email"
