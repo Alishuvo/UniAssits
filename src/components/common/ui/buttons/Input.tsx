@@ -26,7 +26,7 @@ const Input: React.FC<InputProps> = ({
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="">
+    <div className="w-full">
       <div className="flex flex-col gap-3 ">
         {label && <label className={`uppercase ${labelStyle}`}>{label}</label>}
         <label

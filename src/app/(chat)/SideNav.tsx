@@ -1,5 +1,5 @@
+"use client";
 import Link from "next/link";
-import React from "react";
 import { PiNotePencilLight } from "react-icons/pi";
 import { RiSearchLine } from "react-icons/ri";
 import { GrHistory } from "react-icons/gr";

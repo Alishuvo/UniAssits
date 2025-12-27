@@ -21,7 +21,7 @@ const ProfileCard = ({
           alt="profile"
           height={280}
           width={300}
-          className="w-[300px] h-[280px] object-center rounded-lg"
+          className="w-[300px] h-[280px] object-cover object-center rounded-lg"
         />
       </div>
       <div className="flex flex-col gap-2 p-2 justify-center items-center text-center ">

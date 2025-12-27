@@ -82,7 +82,7 @@ const SignUp = () => {
           onSubmit={handleSubmit}
           className="w-1/2 rounded-r-2xl bg-[#eec49b] p-20 flex flex-col gap-5"
         >
-          <div className="flex justify-between items-center">
+          <div className="flex gap-5  items-center">
             <Input
               label="First name"
               name="first_name"
@@ -117,7 +117,7 @@ const SignUp = () => {
           {errors.email && (
             <p className="text-red-500 text-sm">{errors.email[0]}</p>
           )}
-          <div className="flex justify-between items-center">
+          <div className="flex w-full gap-5 items-center">
             <Input
               label="password"
               name="password"
