@@ -14,7 +14,7 @@ import { MdOutlineDocumentScanner } from "react-icons/md";
 
 export const Works = () => {
   return (
-    <div>
+    <div id="works">
       <div className="flex flex-col gap-10">
         <Title text="How it works" />
         <Headline text="From upload to answer in minutes" />

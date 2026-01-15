@@ -9,7 +9,7 @@ import { FeatureCard } from "./FeatureCard";
 
 export const Feature = () => {
   return (
-    <div>
+    <div id="feature">
       <div className="flex flex-col gap-10">
         <Title text="Features" />
         <Headline text="Everything students and staff need in one AI assistant" />

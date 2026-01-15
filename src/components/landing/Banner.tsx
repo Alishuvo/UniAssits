@@ -1,12 +1,23 @@
+"use client"
 import { Description } from "@/components/common/Description";
 import { Headline } from "@/components/common/Headline";
 import { BtnGradient } from "@/components/common/ui/buttons/BtnGradient";
 import { BtnOutline } from "@/components/common/ui/buttons/BtnOutline";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { FaArrowUp } from "react-icons/fa6";
 import { ImAttachment } from "react-icons/im";
 
 export const Banner = () => {
+  const router = useRouter();
+
+  // scrolling into different section
+  const scrollToSection =(id: string)=>{
+    document
+      .getElementById(id)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
   return (
     <div className="flex flex-col items-center gap-40 md:flex-row mt-10 mx-20">
       <div className="w-1/2 flex flex-col gap-5">
@@ -21,8 +32,8 @@ export const Banner = () => {
           className="text-left"
         />
         <div className="flex gap-5">
-          <BtnGradient label="Start Asking" />
-          <BtnOutline label="Explore Features" />
+          <BtnGradient onClick={()=>router.push("/chat")} label="Start Asking" />
+          <BtnOutline onClick={() => scrollToSection("works")} label="Explore Features" />
         </div>
         <div className="bg-[linear-gradient(91.93deg,#FFF4E4_1.63%,rgba(232,175,127,0.31)_97.99%)] flex gap-5 py-2 items-center border border-white px-5">
           <Image src={"/icons/spark.png"} alt="alt" width={67} height={67} />

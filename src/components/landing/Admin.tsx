@@ -4,7 +4,7 @@ import { Description } from "../common/Description";
 
 export const Admin = () => {
   return (
-    <div>
+    <div id="Admin">
       <Headline text="Admin" />
       <Description text="Powerful admin panel" />
       <div className="mx-auto flex gap-5 items-center max-w-4xl my-5">

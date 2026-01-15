@@ -20,7 +20,7 @@ export default function DashboardLayout({
           {/* Sidebar */}
           <SideNav />
           {/* Main container */}
-          <main className="flex-1 ml-64 p-6 overflow-y-auto h-screen">
+          <main className="flex-1 ml-64 p-6 overflow-y-auto h-screen bg-[#FFF4E4] ">
             {children}
           </main>
         </div>

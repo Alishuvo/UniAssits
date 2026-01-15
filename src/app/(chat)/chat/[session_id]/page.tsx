@@ -1,22 +1,23 @@
 "use client";
+
+import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
+import { FaArrowUp } from "react-icons/fa6";
+import { GrAttachment } from "react-icons/gr";
+
+/* ================= TYPES ================= */
 
 interface Message {
   id: number;
   text: string;
   time: string;
   sender: "user" | "bot";
-  date?: string;
-  source?: string;
+  thinking?: boolean;
 }
+
+/* ================= INITIAL DATA ================= */
+
 const initialMessages: Message[] = [
-  {
-    id: 1,
-    text: "Hello, I want to make enquiries about your product",
-    time: "12:55 am",
-    sender: "bot",
-    date: "12 August 2022",
-  },
   {
     id: 2,
     text: "How do I apply for admission?",
@@ -24,135 +25,221 @@ const initialMessages: Message[] = [
     sender: "user",
   },
   {
-    id: 3,
-    text: "Submit an online application on the Admissions Portal, upload required documents, and pay the application fee. You'll receive a confirmation email with your applicant ID.",
+    id: 1,
+    text: "Hello, I want to make enquiries about your product",
     time: "12:55 am",
     sender: "bot",
-    source: "Admissions Prospectus",
-  },
-  {
-    id: 4,
-    text: "Where is the Accounts Office and what are the hours?",
-    time: "12:57 am",
-    sender: "user",
-    date: "Today",
-  },
-  {
-    id: 5,
-    text: "Administration Building, 2nd Floor, Room 204. Hours: Sun–Thu, 9:00–17:00.",
-    time: "12:55 am",
-    sender: "bot",
-    source: "Admissions Prospectus",
   },
 ];
+
+/* ================= WORD TYPING HOOK ================= */
+
+function useWordTyping(text: string, speed = 120) {
+  const [displayedText, setDisplayedText] = useState("");
+
+  useEffect(() => {
+    if (!text) return;
+
+    const words = text.split(" ");
+    let index = 0;
+
+    setDisplayedText("");
+
+    const interval = setInterval(() => {
+      setDisplayedText((prev) =>
+        prev ? `${prev} ${words[index]}` : words[index]
+      );
+
+      index++;
+      if (index >= words.length) clearInterval(interval);
+    }, speed);
+
+    return () => clearInterval(interval);
+  }, [text, speed]);
+
+  return displayedText;
+}
+
+/* ================= THINKING INDICATOR ================= */
+
+function ThinkingIndicator() {
+  const [dots, setDots] = useState("");
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
+    }, 400);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return <span className="italic text-gray-500">Thinking{dots}</span>;
+}
+
+/* ================= BOT MESSAGE ================= */
+
+function BotMessage({
+  text,
+  isTyping,
+  isThinking,
+}: {
+  text: string;
+  isTyping: boolean;
+  isThinking?: boolean;
+}) {
+  if (isThinking) return <ThinkingIndicator />;
+
+  const typedText = isTyping ? useWordTyping(text, 120) : text;
+  return <>{typedText}</>;
+}
+
+/* ================= CHAT PAGE ================= */
 
 const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
+  const [typingBotId, setTypingBotId] = useState<number | null>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
+  /* Auto scroll */
   useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
+    chatContainerRef.current?.scrollTo({
+      top: chatContainerRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
+  /* Send message */
   const handleSendMessage = () => {
-    if (inputValue.trim() === "") return;
+    if (!inputValue.trim()) return;
 
-    const newUserMessage: Message = {
-      id: messages.length + 1,
+    const userMessage: Message = {
+      id: Date.now(),
       text: inputValue,
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
       sender: "user",
     };
 
-    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
+    setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
 
-    // Simulate a bot response
-    setTimeout(() => {
-      const botResponse: Message = {
-        id: messages.length + 2,
-        text: `This is a simulated response to: "${inputValue}"`,
-        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        sender: "bot",
-        source: "Simulated Source",
-      };
-      setMessages((prevMessages) => [...prevMessages, botResponse]);
-    }, 1000);
-  };
-  return (
-    <div className="flex flex-col h-full bg-[#FBE6CE] rounded-xl">
-      <div ref={chatContainerRef} className="flex-1 p-6 overflow-y-auto">
-        {messages.map((msg, index) => (
-          <div key={msg.id}>
-            {/* Date Label */}
-            {msg.date && (
-              <div className="text-center my-3">
-                <span className="text-xs bg-[#F8E0C9] px-3 py-1 rounded-full text-gray-600 font-medium">
-                  {msg.date}
-                </span>
-              </div>
-            )}
+    const thinkingId = Date.now() + 1;
 
-            {/* Message */}
+    const thinkingMessage: Message = {
+      id: thinkingId,
+      text: "",
+      time: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      sender: "bot",
+      thinking: true,
+    };
+
+    setTimeout(() => {
+      setMessages((prev) => [...prev, thinkingMessage]);
+    }, 400);
+
+    setTimeout(() => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === thinkingId
+            ? {
+                ...msg,
+                text: `This is a simulated response to "${userMessage.text}"`,
+                thinking: false,
+              }
+            : msg
+        )
+      );
+
+      setTypingBotId(thinkingId);
+    }, 1800);
+  };
+
+  return (
+    <div className="flex flex-col h-full rounded-xl">
+      {/* CHAT BODY */}
+      <div
+        ref={chatContainerRef}
+        className="flex-1 p-6 overflow-y-auto space-y-4"
+      >
+        {messages.map((msg) => {
+          const isUser = msg.sender === "user";
+          const isTyping = msg.sender === "bot" && msg.id === typingBotId;
+
+          return (
             <div
-              className={`flex items-end mb-4 ${
-                msg.sender === "user" ? "justify-end" : "justify-start"
+              key={msg.id}
+              className={`flex items-end gap-3 ${
+                isUser ? "justify-end" : "justify-start"
               }`}
             >
-              {/* Avatar for bot */}
-              
+              {!isUser && (
+                <Image
+                  src="/photos/cat.jpg"
+                  height={48}
+                  width={48}
+                  alt="avatar"
+                  className="h-12 w-12 rounded-full object-cover"
+                />
+              )}
 
-              <div>
-                <div
-                  className={`max-w-md px-4 py-3 rounded-2xl shadow-sm ${
-                    msg.sender === "user"
-                      ? "bg-[#F8E0C9] rounded-br-none"
-                      : "bg-[#F8E0C9] rounded-bl-none"
-                  }`}
-                >
-                  <p className="text-gray-800 text-sm">{msg.text}</p>
-                  {msg.source && (
-                    <p className="text-xs italic text-orange-500 mt-1">
-                      Source: {msg.source}
-                    </p>
-                  )}
-                </div>
-                <p
-                  className={`text-[11px] text-gray-500 mt-1 ${
-                    msg.sender === "user" ? "text-right" : "text-left"
-                  }`}
-                >
-                  {msg.time}
-                </p>
+              <div
+                className={`max-w-[75%] px-4 py-3 text-sm leading-relaxed
+                ${
+                  isUser
+                    ? "bg-[#FFEAD1] rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-none"
+                    : "bg-gray-200 rounded-tr-xl rounded-tl-xl rounded-br-xl rounded-bl-none"
+                }`}
+              >
+                {msg.sender === "bot" ? (
+                  <BotMessage
+                    text={msg.text}
+                    isTyping={isTyping}
+                    isThinking={msg.thinking}
+                  />
+                ) : (
+                  msg.text
+                )}
               </div>
 
-              {/* Avatar for user */}
-              
+              {isUser && (
+                <Image
+                  src="/photos/cat.jpg"
+                  height={48}
+                  width={48}
+                  alt="avatar"
+                  className="h-12 w-12 rounded-full object-cover"
+                />
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
-      {/* Input Box */}
-      <div className="border-t border-[#FADDBE]  p-4 flex items-center">
-        <input
-          type="text"
-          placeholder="Ask anything"
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") handleSendMessage();
-          }}
-          className="flex-1 px-4 py-2  border-[#FADDBE] rounded-full text-sm focus:outline-none"
-        />
+      {/* INPUT */}
+      <div className="flex justify-between items-center bg-[#DC6D1833] rounded-full py-2 px-5 w-full max-w-3xl mx-auto">
+        <div className="flex items-center gap-5 w-full">
+          <GrAttachment className="text-2xl text-[#E07522]" />
+          <input
+            type="text"
+            placeholder="Ask anything"
+            className="outline-0 bg-transparent w-full"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+          />
+        </div>
+
         <button
           onClick={handleSendMessage}
-          className="ml-3 bg-orange-400 hover:bg-orange-500 text-white px-4 py-2 rounded-full shadow-md transition"
+          className="p-4 rounded-full bg-[linear-gradient(137deg,#E07522_4.45%,#F8A65D_97.83%)]"
         >
-          ➤
+          <FaArrowUp className="text-white text-2xl" />
         </button>
       </div>
     </div>

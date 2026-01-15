@@ -4,7 +4,7 @@ import { Title } from "@/components/common/Title";
 
 export const Teams = () => {
   return (
-    <div className="mt-20">
+    <div className="mt-20" id="teams">
       <div className="flex flex-col gap-10">
         <Title text="Team" />
         <Headline text="Meet the people building your campus assistant" />
