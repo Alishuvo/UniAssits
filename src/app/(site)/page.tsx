@@ -7,6 +7,7 @@ import ProfileCard from "../../components/landing/ProfileCard";
 import { Admin } from "@/components/landing/Admin";
 import { SecondaryBanner } from "@/components/landing/SecondaryBanner";
 import Footer from "@/components/landing/Footer";
+import ScrollToTopButton from "@/components/ButtomToTopScrolling/ScrollToTopButton";
 
 
 export type ProfileDataType = {
@@ -98,6 +99,7 @@ export default function Home() {
         </div>
         <Admin/>
         <SecondaryBanner/>
+        <ScrollToTopButton/>
       </div>
       <Footer/>
     </main>

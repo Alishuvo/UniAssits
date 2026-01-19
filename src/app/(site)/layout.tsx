@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "../../styles/globals.css";
+import AuthProvider from "@/provider/AuthProvider";
 
 
 
@@ -19,7 +20,9 @@ export default function RootLayout({
       <body
         className={`antialiased mx-auto bg-[#fbe6ce]`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

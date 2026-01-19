@@ -1,5 +1,6 @@
 "use client";
 
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
 import { FaArrowUp } from "react-icons/fa6";
@@ -99,19 +100,25 @@ const Page: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
   const [typingBotId, setTypingBotId] = useState<number | null>(null);
+  const [hasStarted, setHasStarted] = useState(false);
+
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
   /* Auto scroll */
   useEffect(() => {
+    if (!hasStarted) return;
+
     chatContainerRef.current?.scrollTo({
       top: chatContainerRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages]);
+  }, [messages, hasStarted]);
 
   /* Send message */
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
+
+    if (!hasStarted) setHasStarted(true);
 
     const userMessage: Message = {
       id: Date.now(),
@@ -148,10 +155,10 @@ const Page: React.FC = () => {
         prev.map((msg) =>
           msg.id === thinkingId
             ? {
-                ...msg,
-                text: `This is a simulated response to "${userMessage.text}"`,
-                thinking: false,
-              }
+              ...msg,
+              text: `This is a simulated response to "${userMessage.text}"`,
+              thinking: false,
+            }
             : msg
         )
       );
@@ -160,88 +167,148 @@ const Page: React.FC = () => {
     }, 1800);
   };
 
+  const session = useSession()
+
+  console.log("Session from side bar:", session.data?.user?.name)
+
   return (
-    <div className="flex flex-col h-full rounded-xl">
-      {/* CHAT BODY */}
-      <div
-        ref={chatContainerRef}
-        className="flex-1 p-6 overflow-y-auto space-y-4"
-      >
-        {messages.map((msg) => {
-          const isUser = msg.sender === "user";
-          const isTyping = msg.sender === "bot" && msg.id === typingBotId;
+    <div className="relative flex flex-col h-full rounded-xl">
 
-          return (
-            <div
-              key={msg.id}
-              className={`flex items-end gap-3 ${
-                isUser ? "justify-end" : "justify-start"
-              }`}
+      {/* ================= WELCOME SCREEN ================= */}
+      {!hasStarted && (
+        <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
+          <Image
+            src="/chat/logo.svg"
+            width={300}
+            height={300}
+            alt="orb"
+          />
+
+          <h1 className="text-5xl font-bold text-[#2C1A0F]">
+            Good Morning, {session.data?.user?.name?.split(" ")[0]}
+          </h1>
+
+
+          <h2 className="text-4xl font-bold text-[#2C1A0F]">
+            How Can I{" "}
+            <span className="text-[#E07522]">Assist You Today?</span>
+          </h2>
+
+          {/* INPUT — centered + close to text */}
+          <div className="mt-4 flex justify-between items-center bg-[#DC6D1833] rounded-full py-2 px-5 w-full max-w-3xl">
+            <div className="flex items-center gap-5 w-full">
+              <GrAttachment className="text-2xl text-[#E07522]" />
+              <input
+                type="text"
+                placeholder="Ask anything"
+                className="outline-0 bg-transparent w-full"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+              />
+            </div>
+
+            <button
+              onClick={handleSendMessage}
+              className="p-4 rounded-full bg-[linear-gradient(137deg,#E07522_4.45%,#F8A65D_97.83%)]"
             >
-              {!isUser && (
-                <Image
-                  src="/photos/cat.jpg"
-                  height={48}
-                  width={48}
-                  alt="avatar"
-                  className="h-12 w-12 rounded-full object-cover"
-                />
-              )}
+              <FaArrowUp className="text-white text-2xl" />
+            </button>
+          </div>
+          <div>
+            <div className="flex gap-8">
+              <button className="bg-[#DC6D1833] rounded-full px-6 font-bold text-orange-400 py-2">Account office</button>
+              <button className="bg-[#DC6D1833] rounded-full px-6 font-bold text-orange-400 py-2">CSE Faculty</button>
+              <button className="bg-[#DC6D1833] rounded-full px-6 font-bold text-orange-400 py-2">Fee Deadlines</button>
+              <button className="bg-[#DC6D1833] rounded-full px-6 font-bold text-orange-400 py-2">Route A bus</button>
+              
+            </div>
+          </div>
+        </div>
+      )}
 
+      {/* ================= CHAT BODY ================= */}
+      {hasStarted && (
+        <div
+          ref={chatContainerRef}
+          className="flex-1 p-6 overflow-y-auto space-y-4 pb-28"
+        >
+          {messages.map((msg) => {
+            const isUser = msg.sender === "user";
+            const isTyping = msg.sender === "bot" && msg.id === typingBotId;
+
+            return (
               <div
-                className={`max-w-[75%] px-4 py-3 text-sm leading-relaxed
-                ${
-                  isUser
-                    ? "bg-[#FFEAD1] rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-none"
-                    : "bg-gray-200 rounded-tr-xl rounded-tl-xl rounded-br-xl rounded-bl-none"
-                }`}
+                key={msg.id}
+                className={`flex items-end gap-3 ${isUser ? "justify-end" : "justify-start"
+                  }`}
               >
-                {msg.sender === "bot" ? (
-                  <BotMessage
-                    text={msg.text}
-                    isTyping={isTyping}
-                    isThinking={msg.thinking}
+                {!isUser && (
+                  <Image
+                    src="/photos/cat.jpg"
+                    height={48}
+                    width={48}
+                    alt="avatar"
+                    className="h-12 w-12 rounded-full object-cover"
                   />
-                ) : (
-                  msg.text
+                )}
+
+                <div
+                  className={`max-w-[75%] px-4 py-3 text-sm leading-relaxed
+                  ${isUser
+                      ? "bg-[#FFEAD1] rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-none"
+                      : "bg-gray-200 rounded-tr-xl rounded-tl-xl rounded-br-xl rounded-bl-none"
+                    }`}
+                >
+                  {msg.sender === "bot" ? (
+                    <BotMessage
+                      text={msg.text}
+                      isTyping={isTyping}
+                      isThinking={msg.thinking}
+                    />
+                  ) : (
+                    msg.text
+                  )}
+                </div>
+
+                {isUser && (
+                  <Image
+                    src="/photos/cat.jpg"
+                    height={48}
+                    width={48}
+                    alt="avatar"
+                    className="h-12 w-12 rounded-full object-cover"
+                  />
                 )}
               </div>
-
-              {isUser && (
-                <Image
-                  src="/photos/cat.jpg"
-                  height={48}
-                  width={48}
-                  alt="avatar"
-                  className="h-12 w-12 rounded-full object-cover"
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* INPUT */}
-      <div className="flex justify-between items-center bg-[#DC6D1833] rounded-full py-2 px-5 w-full max-w-3xl mx-auto">
-        <div className="flex items-center gap-5 w-full">
-          <GrAttachment className="text-2xl text-[#E07522]" />
-          <input
-            type="text"
-            placeholder="Ask anything"
-            className="outline-0 bg-transparent w-full"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
-          />
+            );
+          })}
         </div>
+      )}
 
-        <button
-          onClick={handleSendMessage}
-          className="p-4 rounded-full bg-[linear-gradient(137deg,#E07522_4.45%,#F8A65D_97.83%)]"
-        >
-          <FaArrowUp className="text-white text-2xl" />
-        </button>
-      </div>
+      {/* ================= INPUT — FIXED BOTTOM IN CHAT MODE ================= */}
+      {hasStarted && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex justify-between items-center bg-[#DC6D1833] rounded-full py-2 px-5 w-full max-w-3xl">
+          <div className="flex items-center gap-5 w-full">
+            <GrAttachment className="text-2xl text-[#E07522]" />
+            <input
+              type="text"
+              placeholder="Ask anything"
+              className="outline-0 bg-transparent w-full"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+            />
+          </div>
+
+          <button
+            onClick={handleSendMessage}
+            className="p-4 rounded-full bg-[linear-gradient(137deg,#E07522_4.45%,#F8A65D_97.83%)]"
+          >
+            <FaArrowUp className="text-white text-2xl" />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

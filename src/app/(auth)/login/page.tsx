@@ -4,9 +4,12 @@ import { Description } from "@/components/common/Description";
 import { Headline } from "@/components/common/Headline";
 import { Button } from "@/components/common/ui/buttons/Button";
 import Input from "@/components/common/ui/buttons/Input";
+import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { FaGithub } from "react-icons/fa6";
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -44,6 +47,7 @@ const Login = () => {
     }
   };
 
+
   return (
     <div className="flex justify-center items-center h-screen">
       <div className="flex bg-[linear-gradient(92deg,#FFF4E4_1.63%,rgba(232,175,127,0.31)_97.99%)] bg-clip-text text-transparent shadow-lg mx-20">
@@ -72,6 +76,9 @@ const Login = () => {
             </div>
           </ul>
         </div>
+
+
+
         <form
           onSubmit={handleLogin}
           className="w-1/2 rounded-r-2xl bg-[#eec49b] p-20 flex flex-col gap-5"
@@ -92,23 +99,64 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <Link
+            href={"/forgot-password"}
+            className="text-[#6F6565] underline flex justify-end"
+          >
+            Forget Password?
+          </Link>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <div className="flex justify-between items-center">
-            <Link
-              href={"/forgot-password"}
-              className="text-[#6F6565] underline"
-            >
-              Forget Password?
-            </Link>
             <Button type="submit" label="Log in" className="bg-[#DC6D18]" />
           </div>
+          <div className="flex gap-2">
+            <button onClick={() => signIn("google",{
+              callbackUrl: "/"
+            })}
+              className="
+    flex items-center justify-center gap-3
+    w-full rounded-md 
+     px-4 py-2.5
+     font-medium text-gray-800 lg:text-2xl
+    shadow-sm
+    transition
+    hover:bg-gray-300 hover:shadow
+    cursor-pointer
+    border border-white
+  "
+            >
+              <FcGoogle className="text-4xl" />
+              <span>Sign in with Google</span>
+            </button>
+            <button onClick={() => signIn("github",{
+              callbackUrl:"/"
+            })}
+              className="
+    flex items-center justify-center gap-3
+    w-full rounded-md 
+     px-4 py-2.5
+     font-medium text-gray-800 lg:text-2xl
+    shadow-sm
+    transition
+    hover:bg-gray-300 hover:shadow
+    cursor-pointer
+    border border-white
+  "
+            >
+              <FaGithub className="text-4xl" />
+              <span>Sign in with Github</span>
+            </button>
+          </div>
+
           <p className="text-black">
+
             New here?{" "}
             <Link href={"/signup"} className="font-bold">
               Click Sign up
             </Link>{" "}
             above.
           </p>
+
         </form>
       </div>
     </div>
