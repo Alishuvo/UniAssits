@@ -7,12 +7,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FaArrowUp } from "react-icons/fa6";
 import { ImAttachment } from "react-icons/im";
+import { motion } from "framer-motion";
 
 export const Banner = () => {
   const router = useRouter();
 
   // scrolling into different section
-  const scrollToSection =(id: string)=>{
+  const scrollToSection = (id: string) => {
     document
       .getElementById(id)
       ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -20,7 +21,19 @@ export const Banner = () => {
 
   return (
     <div className="flex flex-col items-center gap-40 md:flex-row mt-10 mx-20">
-      <div className="w-1/2 flex flex-col gap-5">
+
+
+
+      <motion.div className="w-1/2 flex flex-col gap-5"
+        initial={{ x: -100, opacity: 0 }}
+        whileInView={{ x: 0, opacity: 1 }}
+        transition={{
+          delay: 0.2,
+          type: "keyframes",
+          stiffness: 60,
+          duration: 1,
+        }}
+      >
         <Headline
           text="Your University, One Question away."
           className="text-left"
@@ -32,7 +45,7 @@ export const Banner = () => {
           className="text-left"
         />
         <div className="flex gap-5">
-          <BtnGradient onClick={()=>router.push("/chat")} label="Start Asking" />
+          <BtnGradient onClick={() => router.push("/chat")} label="Start Asking" />
           <BtnOutline onClick={() => scrollToSection("works")} label="Explore Features" />
         </div>
         <div className="bg-[linear-gradient(91.93deg,#FFF4E4_1.63%,rgba(232,175,127,0.31)_97.99%)] flex gap-5 py-2 items-center border border-white px-5">
@@ -43,8 +56,20 @@ export const Banner = () => {
             <span className="font-semibold">always with sources.</span>
           </p>
         </div>
-      </div>
-      <div className="w-1/2">
+      </motion.div>
+
+
+
+      <motion.div className="w-1/2"
+        initial={{ x: 100, opacity: 0 }}
+        whileInView={{ x: 0, opacity: 1 }}
+        transition={{
+          delay: 0.2,
+          type: "keyframes",
+          stiffness: 60,
+          duration: 1,
+        }}
+      >
         <div className="bg-[#FCF7F14D] w-[480px] h-[550px]">
           <div className="h-10 w-full bg-[linear-gradient(136.83deg,#FFE5D1_4.45%,#FFB16B_97.83%)] px-5 flex justify-start items-center gap-2">
             <p className="h-5 w-5 rounded-full bg-[#dc6d18]"></p>
@@ -87,7 +112,7 @@ export const Banner = () => {
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

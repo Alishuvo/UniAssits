@@ -1,3 +1,4 @@
+"use client"
 import { Description } from "@/components/common/Description";
 import { Headline } from "@/components/common/Headline";
 import { Title } from "@/components/common/Title";
@@ -6,15 +7,26 @@ import { IoLanguageOutline } from "react-icons/io5";
 import { MdOutlineHandshake } from "react-icons/md";
 import { TbCapture } from "react-icons/tb";
 import { FeatureCard } from "./FeatureCard";
+import { motion } from "framer-motion";
+
 
 export const Feature = () => {
   return (
     <div id="feature">
-      <div className="flex flex-col gap-10">
+      <motion.div className="flex flex-col gap-10"
+        initial={{ y: 100, opacity: 0 }}
+        whileInView={{ y: 0, opacity: 1 }}
+        transition={{
+          delay: 0.2,
+          type: "keyframes",
+          stiffness: 60,
+          duration: 1,
+        }}
+      >
         <Title text="Features" />
         <Headline text="Everything students and staff need in one AI assistant" />
         <Description text="Collect knowledge from PDFs, notices, images and pages. Deliver fast, cited answers with visuals." />
-      </div>
+      </motion.div>
 
       <div className="flex flex-col gap-5">
         {/* section 1 */}
@@ -28,7 +40,7 @@ export const Feature = () => {
 
           <FeatureCard
             icon={<TbCapture className="text-4xl" />}
-            iconStyle="bg-[#1c1b94] p-5" 
+            iconStyle="bg-[#1c1b94] p-5"
             number="02"
             title="Auto-learn from uploads"
             description="Admins upload PDFs/DOCX/Images and the system extracts text & images, builds embeddings and keeps versions for you."
@@ -45,7 +57,7 @@ export const Feature = () => {
 
         {/* section 2 */}
         <div className="my-10 px-20 flex gap-5 justify-center items-start">
-          
+
 
           <FeatureCard
             icon={<CiCircleInfo className="text-2xl" />}

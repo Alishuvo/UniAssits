@@ -4,63 +4,50 @@ import { Description } from "@/components/common/Description";
 import { Headline } from "@/components/common/Headline";
 import { Button } from "@/components/common/ui/buttons/Button";
 import Input from "@/components/common/ui/buttons/Input";
-import { signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import { FaGithub } from "react-icons/fa6";
-import { FcGoogle } from "react-icons/fc";
 import { motion } from "framer-motion";
 import Swal from "sweetalert2";
 
-const Login = () => {
+const ForgotPassword = () => {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/login/`,
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/users/forgot-password/`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email }),
         }
       );
 
-
-
       if (response.ok) {
-        const data = await response.json();
-
-        document.cookie = `refreshToken=${data.refresh}; path=/;`;
-        document.cookie = `accessToken=${data.access}; path=/;`;
-
-        Swal.fire({
-          title: "Logged in successfully!",
-          text: "Click OK to continue to chat.",
+        await Swal.fire({
+          title: "Reset link sent!",
+          text: "Check your email for the password reset link.",
+          icon: "success",
           confirmButtonText: "OK",
           confirmButtonColor: "#DC6D18",
           allowOutsideClick: false,
           allowEscapeKey: false,
-        }).then((result) => {
-          if (result.isConfirmed) {
-            router.push("/chat");
-          }
         });
 
+        router.push("/login");
       } else {
         const errorData = await response.json();
         setError(
-          errorData.detail || "Failed to login. Please check your credentials."
+          errorData.detail ||
+          "Failed to send reset link. Please check your email."
         );
       }
-
     } catch (err) {
       setError("An error occurred. Please try again.");
     }
@@ -101,10 +88,11 @@ const Login = () => {
               ease: "easeOut",
             }}
           >
-            <Headline
-              text="Welcome 👋Your university, one question away."
-              className="text-left text-[#FFF4E4]"
-            />
+            <div>
+              <h1 className="text-7xl mb-6">🔐</h1>
+              <h3 className="text-3xl mb-2">Forgot your password?</h3>
+              <h4 className="text-lg">Enter your registered email and we’ll send you a secure reset link.</h4>
+            </div>
           </motion.div>
 
           <motion.div
@@ -117,11 +105,6 @@ const Login = () => {
               ease: "easeOut",
             }}
           >
-            <Description
-              text="Ask about fees, departments, locations, bus schedules, or
-              any notice. Bangla & English supported."
-              className=""
-            />
           </motion.div>
 
           <motion.ul
@@ -137,22 +120,22 @@ const Login = () => {
           >
             <div className="flex gap-5 items-center">
               <p className="h-2.5 w-2.5 bg-[#DC6D18] rounded-full"></p>
-              <span>Glass-smooth experience with real-time answers</span>
+              <span>Secure password reset process</span>
             </div>
             <div className="flex gap-5 items-center">
               <p className="h-2.5 w-2.5 bg-[#DC6D18] rounded-full"></p>
-              <span>Admin uploads PDFs → AI learns automatically</span>
+              <span>Reset link expires automatically</span>
             </div>
             <div className="flex gap-5 items-center">
               <p className="h-2.5 w-2.5 bg-[#DC6D18] rounded-full"></p>
-              <span>Always cited answers and inline images</span>
+              <span>Quick access back to your account</span>
             </div>
           </motion.ul>
         </motion.div>
 
         {/* Right panel / form */}
         <motion.form
-          onSubmit={handleLogin}
+          onSubmit={handleForgotPassword}
           initial={{ x: 60, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
           transition={{
@@ -172,39 +155,10 @@ const Login = () => {
               label="email"
               name="email"
               type="email"
-              placeholder="you@university.edu"
+              placeholder="example@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-          </motion.div>
-
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.55, duration: 1.1, ease: "easeOut" }}
-          >
-            <Input
-              label="password"
-              name="password"
-              placeholder="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ y: 16, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.65, duration: 1.1, ease: "easeOut" }}
-            className="flex justify-end"
-          >
-            <Link
-              href={"/forgot-password"}
-              className="text-[#6F6565] underline"
-            >
-              Forget Password?
-            </Link>
           </motion.div>
 
           {error && (
@@ -224,38 +178,11 @@ const Login = () => {
             transition={{ delay: 0.75, duration: 1.1, ease: "easeOut" }}
             className="flex justify-between items-center"
           >
-            <Button type="submit" label="Log in" className="bg-[#DC6D18]" />
-          </motion.div>
-
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.9, duration: 1.1, ease: "easeOut" }}
-            className="flex gap-2"
-          >
-            <button
-              onClick={() =>
-                signIn("google", {
-                  callbackUrl: "/",
-                })
-              }
-              className="flex items-center justify-center gap-3 w-full rounded-md px-4 py-2.5 font-medium text-gray-800 lg:text-2xl shadow-sm transition hover:bg-gray-300 hover:shadow cursor-pointer border border-white"
-            >
-              <FcGoogle className="text-4xl" />
-              <span>Sign in with Google</span>
-            </button>
-
-            <button
-              onClick={() =>
-                signIn("github", {
-                  callbackUrl: "/",
-                })
-              }
-              className="flex items-center justify-center gap-3 w-full rounded-md px-4 py-2.5 font-medium text-gray-800 lg:text-2xl shadow-sm transition hover:bg-gray-300 hover:shadow cursor-pointer border border-white"
-            >
-              <FaGithub className="text-4xl" />
-              <span>Sign in with Github</span>
-            </button>
+            <Button
+              type="submit"
+              label="Send OTP Code"
+              className="bg-[#DC6D18]"
+            />
           </motion.div>
 
           <motion.p
@@ -264,11 +191,10 @@ const Login = () => {
             transition={{ delay: 1.05, duration: 1.1, ease: "easeOut" }}
             className="text-black"
           >
-            New here?{" "}
-            <Link href={"/signup"} className="font-bold">
-              Click Sign up
-            </Link>{" "}
-            above.
+            Remembered your password?{" "}
+            <Link href={"/login"} className="font-bold">
+              Back to login
+            </Link>
           </motion.p>
         </motion.form>
       </motion.div>
@@ -276,4 +202,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default ForgotPassword;

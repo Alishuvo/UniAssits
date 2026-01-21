@@ -27,7 +27,7 @@ type ProfileDataCollection = ProfileDataType[];
 
 
 
-const ProfileData: ProfileDataCollection= [
+const ProfileData: ProfileDataCollection = [
   {
     name: "Nadia Rahman",
     title: "Machine Learning",
@@ -89,19 +89,20 @@ export default function Home() {
         <Banner />
         <Feature />
         <Works />
-        <Teams/>
+        <Teams />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5 max-w-3xl mx-auto">
-          {ProfileData?.map((profile, index) => (
-          <div key={index} className={index%2 === 1 ? "md:mt-64" : "mt-0"}>
-            <ProfileCard  profile={profile} />
-          </div>
-        ))}
+          {ProfileData.map((profile, index) => (
+            <div key={index} className={index % 2 === 1 ? "md:mt-64" : "mt-0"}>
+              <ProfileCard profile={profile} index={index} />
+            </div>
+          ))}
+
         </div>
-        <Admin/>
-        <SecondaryBanner/>
-        <ScrollToTopButton/>
+        <Admin />
+        <SecondaryBanner />
+        <ScrollToTopButton />
       </div>
-      <Footer/>
+      <Footer />
     </main>
   );
 }

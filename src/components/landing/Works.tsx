@@ -1,3 +1,4 @@
+"use client"
 import { Description } from "@/components/common/Description";
 import { Headline } from "@/components/common/Headline";
 import { Title } from "@/components/common/Title";
@@ -11,19 +12,66 @@ import {
 } from "react-icons/fa6";
 import { FcDepartment } from "react-icons/fc";
 import { MdOutlineDocumentScanner } from "react-icons/md";
+import { motion } from "framer-motion";
 
 export const Works = () => {
   return (
     <div id="works">
       <div className="flex flex-col gap-10">
-        <Title text="How it works" />
-        <Headline text="From upload to answer in minutes" />
-        <Description text="Collect knowledge from PDFs, notices, images and pages. Deliver fast, cited answers with visuals." />
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{
+            delay: 0.2,
+            type: "keyframes",
+            stiffness: 60,
+            duration: 1,
+          }}
+        >
+          <Title text="How it works" />
+        </motion.div>
+
+        <motion.div
+          initial={{ y: 100, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{
+            delay: 0.3,
+            type: "keyframes",
+            stiffness: 60,
+            duration: 1,
+          }}
+        >
+          <Headline text="From upload to answer in minutes" />
+
+        </motion.div>
+        <motion.div
+
+          initial={{ y: 100, opacity: 0 }}
+          whileInView={{ y: 0, opacity: 1 }}
+          transition={{
+            delay: 0.4,
+            type: "keyframes",
+            stiffness: 60,
+            duration: 1,
+          }}
+        >
+          <Description text="Collect knowledge from PDFs, notices, images and pages. Deliver fast, cited answers with visuals." />
+        </motion.div>
 
         <div className="flex flex-col gap-36 mt-20">
           {/* feature1  */}
           <div className="flex flex-col-reverse md:flex-row items-center justify-center gap-12 md:gap-20">
-            <div>
+
+            <motion.div
+              initial={{ x: -100, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{
+                delay: 0.2,
+                type: "keyframes",
+                stiffness: 60,
+                duration: 1,
+              }}
+            >
               <div className="relative">
                 {/* half circle  */}
                 <div className="w-[400px] h-[200px] absolute bg-[#FFE9E9] rounded-b-full -z-10 -bottom-20 -left-20" />
@@ -35,16 +83,38 @@ export const Works = () => {
                   </p>
                 </div>
               </div>
-            </div>
-            <div className="max-w-md">
+            </motion.div>
+
+
+            <motion.div className="max-w-md"
+              initial={{ x: 100, opacity: 0 }}
+              whileInView={{ x: 0, opacity: 1 }}
+              transition={{
+                delay: 0.2,
+                type: "keyframes",
+                stiffness: 60,
+                duration: 1,
+              }}
+            >
               <h3 className="text-2xl">Upload</h3>
               <p className="text-[#425466]">
                 Upload PDFs, DOCX, PPTX or images — drag & drop or choose files.
               </p>
-            </div>
+            </motion.div>
+
           </div>
+
           {/* feature2  */}
-          <div className="flex flex-col md:flex-row-reverse items-center justify-center gap-12 md:gap-20">
+          <motion.div className="flex flex-col md:flex-row-reverse items-center justify-center gap-12 md:gap-20"
+            initial={{ x: -100, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{
+              delay: 0.2,
+              type: "keyframes",
+              stiffness: 60,
+              duration: 1,
+            }}
+          >
             <div>
               <div className="relative">
                 {/* half circle  */}
@@ -68,9 +138,18 @@ export const Works = () => {
                 room images are auto‑extracted.
               </p>
             </div>
-          </div>
+          </motion.div>
           {/* feature3  */}
-          <div className="flex flex-col-reverse md:flex-row items-center justify-center gap-12 md:gap-20">
+          <motion.div className="flex flex-col-reverse md:flex-row items-center justify-center gap-12 md:gap-20"
+            initial={{ x: 100, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{
+              delay: 0.2,
+              type: "keyframes",
+              stiffness: 60,
+              duration: 1,
+            }}
+          >
             <div>
               <div className="relative">
                 {/* half circle  */}
@@ -98,9 +177,16 @@ export const Works = () => {
                 Upload PDFs, DOCX, PPTX or images — drag & drop or choose files.
               </p>
             </div>
-          </div>
+          </motion.div>
+
         </div>
+
+
       </div>
+
     </div>
   );
 };
+
+
+

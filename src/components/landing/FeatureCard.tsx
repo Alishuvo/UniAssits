@@ -1,4 +1,6 @@
+"use client"
 import React from "react";
+import { motion } from "framer-motion";
 
 type FeatureCardProps = {
   icon: React.ReactNode;
@@ -15,10 +17,19 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
   title = "please pass title",
   description = "please pass description",
   iconStyle = "bg-[#e8563f] p-3",
-  containerStyle = "w-96 p-10 gap-15", 
+  containerStyle = "w-96 p-10 gap-15",
 }) => {
   return (
-    <div
+    <motion.div
+      initial={{ y: 100, opacity: 0 }}
+      whileInView={{ y: 0, opacity: 1 }}
+      transition={{
+        delay: 0.2,
+        type: "keyframes",
+        stiffness: 60,
+        duration: 1,
+      }}
+
       className={`flex flex-col rounded-xl backdrop-blur-[6px] shadow-[7px_14px_35px_0px_#DC6D186B] ${containerStyle}`}
     >
       <div className="flex items-center justify-between">
@@ -30,6 +41,6 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
         <p className="font-semibold text-lg">{title}</p>
         <p className="text-[#6C6C6C]">{description}</p>
       </div>
-    </div>
+    </motion.div>
   );
 };

@@ -5,6 +5,7 @@ import Image from "next/image";
 import React, { useState, useRef, useEffect } from "react";
 import { FaArrowUp } from "react-icons/fa6";
 import { GrAttachment } from "react-icons/gr";
+import { motion, AnimatePresence } from "framer-motion";
 
 /* ================= TYPES ================= */
 
@@ -74,7 +75,16 @@ function ThinkingIndicator() {
     return () => clearInterval(interval);
   }, []);
 
-  return <span className="italic text-gray-500">Thinking{dots}</span>;
+  return (
+    <motion.span
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="italic text-gray-500"
+    >
+      Thinking{dots}
+    </motion.span>
+  );
 }
 
 /* ================= BOT MESSAGE ================= */
@@ -155,10 +165,10 @@ const Page: React.FC = () => {
         prev.map((msg) =>
           msg.id === thinkingId
             ? {
-              ...msg,
-              text: `This is a simulated response to "${userMessage.text}"`,
-              thinking: false,
-            }
+                ...msg,
+                text: `This is a simulated response to "${userMessage.text}"`,
+                thinking: false,
+              }
             : msg
         )
       );
@@ -167,35 +177,52 @@ const Page: React.FC = () => {
     }, 1800);
   };
 
-  const session = useSession()
-
-  console.log("Session from side bar:", session.data?.user?.name)
+  const session = useSession();
 
   return (
     <div className="relative flex flex-col h-full rounded-xl">
-
       {/* ================= WELCOME SCREEN ================= */}
       {!hasStarted && (
-        <div className="flex-1 flex flex-col items-center justify-center text-center gap-6">
-          <Image
-            src="/chat/logo.svg"
-            width={300}
-            height={300}
-            alt="orb"
-          />
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+          className="flex-1 flex flex-col items-center justify-center text-center gap-6"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 1.2, ease: "easeOut" }}
+          >
+            <Image src="/chat/logo.svg" width={300} height={300} alt="orb" />
+          </motion.div>
 
-          <h1 className="text-5xl font-bold text-[#2C1A0F]">
+          <motion.h1
+            initial={{ y: 24, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.4, duration: 1.1, ease: "easeOut" }}
+            className="text-5xl font-bold text-[#2C1A0F]"
+          >
             Good Morning, {session.data?.user?.name?.split(" ")[0]}
-          </h1>
+          </motion.h1>
 
-
-          <h2 className="text-4xl font-bold text-[#2C1A0F]">
+          <motion.h2
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.55, duration: 1.1, ease: "easeOut" }}
+            className="text-4xl font-bold text-[#2C1A0F]"
+          >
             How Can I{" "}
             <span className="text-[#E07522]">Assist You Today?</span>
-          </h2>
+          </motion.h2>
 
-          {/* INPUT — centered + close to text */}
-          <div className="mt-4 flex justify-between items-center bg-[#DC6D1833] rounded-full py-2 px-5 w-full max-w-3xl">
+          {/* INPUT */}
+          <motion.div
+            initial={{ y: 24, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.7, duration: 1.1, ease: "easeOut" }}
+            className="mt-4 flex justify-between items-center bg-[#DC6D1833] rounded-full py-2 px-5 w-full max-w-3xl"
+          >
             <div className="flex items-center gap-5 w-full">
               <GrAttachment className="text-2xl text-[#E07522]" />
               <input
@@ -214,17 +241,38 @@ const Page: React.FC = () => {
             >
               <FaArrowUp className="text-white text-2xl" />
             </button>
-          </div>
-          <div>
+          </motion.div>
+
+          {/* Suggestion chips */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.9, duration: 1.1, ease: "easeOut" }}
+          >
             <div className="flex gap-8">
-              <button className="bg-[#DC6D1833] rounded-full px-6 font-bold text-orange-400 py-2">Account office</button>
-              <button className="bg-[#DC6D1833] rounded-full px-6 font-bold text-orange-400 py-2">CSE Faculty</button>
-              <button className="bg-[#DC6D1833] rounded-full px-6 font-bold text-orange-400 py-2">Fee Deadlines</button>
-              <button className="bg-[#DC6D1833] rounded-full px-6 font-bold text-orange-400 py-2">Route A bus</button>
-              
+              {[
+                "Account office",
+                "CSE Faculty",
+                "Fee Deadlines",
+                "Route A bus",
+              ].map((label, i) => (
+                <motion.button
+                  key={label}
+                  initial={{ y: 16, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{
+                    delay: 1 + i * 0.12,
+                    duration: 0.8,
+                    ease: "easeOut",
+                  }}
+                  className="bg-[#DC6D1833] rounded-full px-6 font-bold text-orange-400 py-2"
+                >
+                  {label}
+                </motion.button>
+              ))}
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
       {/* ================= CHAT BODY ================= */}
@@ -233,62 +281,76 @@ const Page: React.FC = () => {
           ref={chatContainerRef}
           className="flex-1 p-6 overflow-y-auto space-y-4 pb-28"
         >
-          {messages.map((msg) => {
-            const isUser = msg.sender === "user";
-            const isTyping = msg.sender === "bot" && msg.id === typingBotId;
+          <AnimatePresence>
+            {messages.map((msg) => {
+              const isUser = msg.sender === "user";
+              const isTyping =
+                msg.sender === "bot" && msg.id === typingBotId;
 
-            return (
-              <div
-                key={msg.id}
-                className={`flex items-end gap-3 ${isUser ? "justify-end" : "justify-start"
+              return (
+                <motion.div
+                  key={msg.id}
+                  initial={{ y: 16, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.4 }}
+                  className={`flex items-end gap-3 ${
+                    isUser ? "justify-end" : "justify-start"
                   }`}
-              >
-                {!isUser && (
-                  <Image
-                    src="/photos/cat.jpg"
-                    height={48}
-                    width={48}
-                    alt="avatar"
-                    className="h-12 w-12 rounded-full object-cover"
-                  />
-                )}
-
-                <div
-                  className={`max-w-[75%] px-4 py-3 text-sm leading-relaxed
-                  ${isUser
-                      ? "bg-[#FFEAD1] rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-none"
-                      : "bg-gray-200 rounded-tr-xl rounded-tl-xl rounded-br-xl rounded-bl-none"
-                    }`}
                 >
-                  {msg.sender === "bot" ? (
-                    <BotMessage
-                      text={msg.text}
-                      isTyping={isTyping}
-                      isThinking={msg.thinking}
+                  {!isUser && (
+                    <Image
+                      src="/photos/cat.jpg"
+                      height={48}
+                      width={48}
+                      alt="avatar"
+                      className="h-12 w-12 rounded-full object-cover"
                     />
-                  ) : (
-                    msg.text
                   )}
-                </div>
 
-                {isUser && (
-                  <Image
-                    src="/photos/cat.jpg"
-                    height={48}
-                    width={48}
-                    alt="avatar"
-                    className="h-12 w-12 rounded-full object-cover"
-                  />
-                )}
-              </div>
-            );
-          })}
+                  <div
+                    className={`max-w-[75%] px-4 py-3 text-sm leading-relaxed
+                    ${
+                      isUser
+                        ? "bg-[#FFEAD1] rounded-tl-xl rounded-tr-xl rounded-bl-xl rounded-br-none"
+                        : "bg-gray-200 rounded-tr-xl rounded-tl-xl rounded-br-xl rounded-bl-none"
+                    }`}
+                  >
+                    {msg.sender === "bot" ? (
+                      <BotMessage
+                        text={msg.text}
+                        isTyping={isTyping}
+                        isThinking={msg.thinking}
+                      />
+                    ) : (
+                      msg.text
+                    )}
+                  </div>
+
+                  {isUser && (
+                    <Image
+                      src="/photos/cat.jpg"
+                      height={48}
+                      width={48}
+                      alt="avatar"
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                  )}
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       )}
 
-      {/* ================= INPUT — FIXED BOTTOM IN CHAT MODE ================= */}
+      {/* ================= INPUT — FIXED BOTTOM ================= */}
       {hasStarted && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex justify-between items-center bg-[#DC6D1833] rounded-full py-2 px-5 w-full max-w-3xl">
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="absolute bottom-6 left-1/2 -translate-x-1/2 flex justify-between items-center bg-[#DC6D1833] rounded-full py-2 px-5 w-full max-w-3xl"
+        >
           <div className="flex items-center gap-5 w-full">
             <GrAttachment className="text-2xl text-[#E07522]" />
             <input
@@ -307,7 +369,7 @@ const Page: React.FC = () => {
           >
             <FaArrowUp className="text-white text-2xl" />
           </button>
-        </div>
+        </motion.div>
       )}
     </div>
   );
