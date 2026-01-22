@@ -17,22 +17,30 @@ interface Message {
   thinking?: boolean;
 }
 
+interface ChatResponse {
+  ai_reply: string;
+  session_id?: string;
+}
+
+interface SessionMessage {
+  user?: string;
+  ai?: string;
+}
+
+interface SessionResponse {
+  session_id: string;
+  user: number;
+  created_at: string;
+  messages: SessionMessage[];
+}
+
+/* ================= API CONFIG ================= */
+
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000";
+
 /* ================= INITIAL DATA ================= */
 
-const initialMessages: Message[] = [
-  {
-    id: 2,
-    text: "How do I apply for admission?",
-    time: "12:57 am",
-    sender: "user",
-  },
-  {
-    id: 1,
-    text: "Hello, I want to make enquiries about your product",
-    time: "12:55 am",
-    sender: "bot",
-  },
-];
+const initialMessages: Message[] = [];
 
 /* ================= WORD TYPING HOOK ================= */
 
@@ -111,8 +119,24 @@ const Page: React.FC = () => {
   const [inputValue, setInputValue] = useState("");
   const [typingBotId, setTypingBotId] = useState<number | null>(null);
   const [hasStarted, setHasStarted] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  /* Get token from localStorage on mount */
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
+  }, []);
+
+  /* Load previous session when token is available */
+  useEffect(() => {
+    if (token) {
+      loadPreviousSession();
+    }
+  }, [token]);
 
   /* Auto scroll */
   useEffect(() => {
@@ -124,8 +148,155 @@ const Page: React.FC = () => {
     });
   }, [messages, hasStarted]);
 
+  /* Start chat - first message */
+  const startChat = async (message: string): Promise<ChatResponse | null> => {
+    try {
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+
+      // Add authorization token from localStorage
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chatbot/start/`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          message: message,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error Status:", response.status, "Response:", errorText);
+        throw new Error(`API Error: ${response.status} - ${errorText}`);
+      }
+
+      const data: ChatResponse = await response.json();
+      setSessionId(data.session_id || null);
+      return data;
+    } catch (error) {
+      console.error("Error starting chat:", error);
+      return null;
+    }
+  };
+
+  /* Continue chat - subsequent messages */
+  const continueChat = async (
+    message: string,
+    sId: string
+  ): Promise<ChatResponse | null> => {
+    try {
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+      };
+
+      // Add authorization token from localStorage
+      if (token) {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chatbot/continue/`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          message: message,
+          session_id: sId,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error Status:", response.status, "Response:", errorText);
+        throw new Error(`API Error: ${response.status} - ${errorText}`);
+      }
+
+      const data: ChatResponse = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error continuing chat:", error);
+      return null;
+    }
+  };
+
+  /* Load previous session messages */
+  const loadPreviousSession = async () => {
+    try {
+      // Get token from localStorage directly (not from state)
+      const storedToken = localStorage.getItem("token");
+      if (!storedToken) {
+        console.log("No token available, skipping session load");
+        return;
+      }
+
+      // Get session ID from URL or localStorage
+      const urlParams = new URLSearchParams(window.location.search);
+      const sessionIdFromUrl = urlParams.get("session_id");
+      const sessionIdFromStorage = localStorage.getItem("currentSessionId");
+      const sId = sessionIdFromUrl || sessionIdFromStorage;
+
+      console.log("Loading session:", sId);
+
+      if (!sId) {
+        console.log("No session ID found");
+        return;
+      }
+
+      const headers: HeadersInit = {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${storedToken}`,
+      };
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/chatbot/sessions/${sId}/`,
+        {
+          method: "GET",
+          headers,
+        }
+      );
+
+      if (!response.ok) {
+        console.error("Failed to load session:", response.status);
+        return;
+      }
+
+      const data: SessionResponse = await response.json();
+      
+      // Set the session ID
+      setSessionId(data.session_id);
+      localStorage.setItem("currentSessionId", data.session_id);
+
+      // Parse messages from the API response
+      const parsedMessages: Message[] = data.messages.map((msgObj, index) => {
+        const isUser = !!msgObj.user;
+        const text = msgObj.user || msgObj.ai || "";
+
+        return {
+          id: Date.now() + index, // Unique ID for each message
+          text,
+          time: new Date().toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          sender: isUser ? "user" : "bot",
+        };
+      });
+
+      // Set messages and mark that chat has started
+      if (parsedMessages.length > 0) {
+        console.log("Loaded previous messages:", parsedMessages.length);
+        setMessages(parsedMessages);
+        setHasStarted(true);
+      }
+    } catch (error) {
+      console.error("Error loading previous session:", error);
+    }
+  };
+
   /* Send message */
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!inputValue.trim()) return;
 
     if (!hasStarted) setHasStarted(true);
@@ -141,7 +312,9 @@ const Page: React.FC = () => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const messageText = inputValue;
     setInputValue("");
+    setIsLoading(true);
 
     const thinkingId = Date.now() + 1;
 
@@ -160,21 +333,71 @@ const Page: React.FC = () => {
       setMessages((prev) => [...prev, thinkingMessage]);
     }, 400);
 
-    setTimeout(() => {
+    try {
+      let apiResponse: ChatResponse | null = null;
+
+      if (!sessionId) {
+        // Start new chat
+        apiResponse = await startChat(messageText);
+      } else {
+        // Continue existing chat
+        apiResponse = await continueChat(messageText, sessionId);
+      }
+
+      if (apiResponse) {
+        setTimeout(() => {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === thinkingId
+                ? {
+                    ...msg,
+                    text: apiResponse!.ai_reply,
+                    thinking: false,
+                  }
+                : msg
+            )
+          );
+
+          setTypingBotId(thinkingId);
+
+          // Save session ID to localStorage for persistence
+          if (apiResponse.session_id && !sessionId) {
+            localStorage.setItem("currentSessionId", apiResponse.session_id);
+          }
+        }, 1800);
+      } else {
+        // Handle error - replace thinking message with error message
+        setTimeout(() => {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === thinkingId
+                ? {
+                    ...msg,
+                    text: "Sorry, I encountered an error. Please try again.",
+                    thinking: false,
+                  }
+                : msg
+            )
+          );
+        }, 1800);
+      }
+    } catch (error) {
+      console.error("Error sending message:", error);
+      // Handle error - replace thinking message with error message
       setMessages((prev) =>
         prev.map((msg) =>
           msg.id === thinkingId
             ? {
                 ...msg,
-                text: `This is a simulated response to "${userMessage.text}"`,
+                text: "Sorry, I encountered an error. Please try again.",
                 thinking: false,
               }
             : msg
         )
       );
-
-      setTypingBotId(thinkingId);
-    }, 1800);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const session = useSession();
@@ -194,7 +417,7 @@ const Page: React.FC = () => {
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.2, duration: 1.2, ease: "easeOut" }}
           >
-            <Image src="/chat/logo.svg" width={300} height={300} alt="orb" />
+            <Image src="/chat/logo.svg" width={300} height={300} alt="orb" loading="eager" />
           </motion.div>
 
           <motion.h1
@@ -237,7 +460,8 @@ const Page: React.FC = () => {
 
             <button
               onClick={handleSendMessage}
-              className="p-4 rounded-full bg-[linear-gradient(137deg,#E07522_4.45%,#F8A65D_97.83%)]"
+              disabled={isLoading}
+              className="p-4 rounded-full bg-[linear-gradient(137deg,#E07522_4.45%,#F8A65D_97.83%)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <FaArrowUp className="text-white text-2xl" />
             </button>
@@ -365,7 +589,8 @@ const Page: React.FC = () => {
 
           <button
             onClick={handleSendMessage}
-            className="p-4 rounded-full bg-[linear-gradient(137deg,#E07522_4.45%,#F8A65D_97.83%)]"
+            disabled={isLoading}
+            className="p-4 rounded-full bg-[linear-gradient(137deg,#E07522_4.45%,#F8A65D_97.83%)] disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FaArrowUp className="text-white text-2xl" />
           </button>

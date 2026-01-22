@@ -6,15 +6,102 @@ import { RiSearchLine } from "react-icons/ri";
 import { GrHistory } from "react-icons/gr";
 import Image from "next/image";
 import { useSession, signOut } from "next-auth/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
+interface ChatSession {
+  session_id: string;
+  user: number;
+  created_at: string;
+  messages: Array<{ user?: string; ai?: string }>;
+}
 
 const SideNav = () => {
   const session = useSession();
+  const router = useRouter();
 
-  // ✅ missing state (fix)
   const [showLogout, setShowLogout] = useState(false);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  // ✅ missing handler (fix)
+  // Fetch all chat sessions on mount
+  useEffect(() => {
+    fetchSessions();
+  }, []);
+
+  // Refetch sessions when token changes
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchSessions();
+    }
+  }, []);
+
+  // Fetch sessions from API
+  const fetchSessions = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("token");
+      
+      if (!token) {
+        console.log("No token found");
+        return;
+      }
+
+      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}api/chatbot/sessions/`;
+      console.log("Fetching from:", url);
+
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Failed to fetch sessions:", response.status, errorText);
+        return;
+      }
+
+      const data: ChatSession[] = await response.json();
+      setSessions(data);
+    } catch (error) {
+      console.error("Error fetching sessions:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load a specific session
+  const handleSessionClick = (sessionId: string) => {
+    localStorage.setItem("currentSessionId", sessionId);
+    router.push(`/chat?session_id=${sessionId}`);
+  };
+
+  // Get preview text for each session
+  const getSessionPreview = (messages: ChatSession["messages"]) => {
+    if (messages.length === 0) return "No messages";
+    const lastMessage = messages[messages.length - 1];
+    const text = lastMessage.user || lastMessage.ai || "";
+    return text.substring(0, 30) + (text.length > 30 ? "..." : "");
+  };
+
+  // Format date
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+    
+    if (isToday) {
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+    return date.toLocaleDateString([], { month: "short", day: "numeric" });
+  };
+
   const handleLogout = async () => {
     setShowLogout(false);
     await signOut({ callbackUrl: "/login" });
@@ -50,19 +137,28 @@ const SideNav = () => {
             Chats
           </h1>
 
-          <div>
-            <div className="rounded-sm px-4 py-2 mb-1 hover:bg-gray-300 cursor-pointer">
-              <Link href={"/history"}> What are you doing</Link>
-            </div>
-            <div className="rounded-sm px-4 py-2 mb-1 hover:bg-gray-300 cursor-pointer">
-              <Link href={"/"}> I have a car</Link>
-            </div>
-            <div className="rounded-sm px-4 py-2 mb-1 hover:bg-gray-300 cursor-pointer">
-              <Link href={"/"}>Hi, I am fine</Link>
-            </div>
-            <div className="rounded-sm px-4 py-2 mb-1 hover:bg-gray-300 cursor-pointer">
-              <Link href={"/"}> I am a develoer</Link>
-            </div>
+          {/* Chat sessions list */}
+          <div className="max-h-96 overflow-y-auto">
+            {loading ? (
+              <div className="px-4 py-2 text-gray-500 text-center">Loading chats...</div>
+            ) : sessions.length === 0 ? (
+              <div className="px-4 py-2 text-gray-500 text-center">No chats yet</div>
+            ) : (
+              sessions.map((sess) => (
+                <button
+                  key={sess.session_id}
+                  onClick={() => handleSessionClick(sess.session_id)}
+                  className="w-full text-left rounded-sm px-4 py-2 mb-1 hover:bg-gray-300 cursor-pointer transition group"
+                >
+                  <div className="truncate font-medium text-sm text-gray-800 group-hover:text-gray-900">
+                    {getSessionPreview(sess.messages)}
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    {formatDate(sess.created_at)}
+                  </div>
+                </button>
+              ))
+            )}
           </div>
         </nav>
       </div>
