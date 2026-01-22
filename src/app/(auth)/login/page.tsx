@@ -33,13 +33,22 @@ const Login = () => {
         }
       );
 
-
-
       if (response.ok) {
         const data = await response.json();
 
+        /* ================= TOKEN STORAGE (IMPORTANT PART) ================= */
+
+        // 🔹 Store access token in localStorage (USED LATER BY CHATBOT)
+        localStorage.setItem("token", data.access);
+
+        // 🔹 Optional: store refresh token if you need later
+        localStorage.setItem("refreshToken", data.refresh);
+
+        // 🔹 Keep your existing cookie logic (if backend uses cookies too)
         document.cookie = `refreshToken=${data.refresh}; path=/;`;
         document.cookie = `accessToken=${data.access}; path=/;`;
+
+        /* ================================================================= */
 
         Swal.fire({
           title: "Logged in successfully!",
@@ -91,185 +100,52 @@ const Login = () => {
           }}
           className="w-1/2 text-[#FFF4E4] p-32 bg-linear-to-r from-[#624E40] to-[#937964] flex flex-col gap-5 rounded-l-2xl"
         >
-          <motion.div
-            initial={{ y: 24, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{
-              delay: 0.35,
-              type: "keyframes",
-              duration: 1.2,
-              ease: "easeOut",
-            }}
-          >
-            <Headline
-              text="Welcome 👋Your university, one question away."
-              className="text-left text-[#FFF4E4]"
-            />
-          </motion.div>
+          <Headline
+            text="Welcome 👋Your university, one question away."
+            className="text-left text-[#FFF4E4]"
+          />
 
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{
-              delay: 0.5,
-              type: "keyframes",
-              duration: 1.2,
-              ease: "easeOut",
-            }}
-          >
-            <Description
-              text="Ask about fees, departments, locations, bus schedules, or
-              any notice. Bangla & English supported."
-              className=""
-            />
-          </motion.div>
-
-          <motion.ul
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{
-              delay: 0.65,
-              type: "keyframes",
-              duration: 1.2,
-              ease: "easeOut",
-            }}
-            className="flex flex-col gap-5"
-          >
-            <div className="flex gap-5 items-center">
-              <p className="h-2.5 w-2.5 bg-[#DC6D18] rounded-full"></p>
-              <span>Glass-smooth experience with real-time answers</span>
-            </div>
-            <div className="flex gap-5 items-center">
-              <p className="h-2.5 w-2.5 bg-[#DC6D18] rounded-full"></p>
-              <span>Admin uploads PDFs → AI learns automatically</span>
-            </div>
-            <div className="flex gap-5 items-center">
-              <p className="h-2.5 w-2.5 bg-[#DC6D18] rounded-full"></p>
-              <span>Always cited answers and inline images</span>
-            </div>
-          </motion.ul>
+          <Description
+            text="Ask about fees, departments, locations, bus schedules, or any notice. Bangla & English supported."
+          />
         </motion.div>
 
         {/* Right panel / form */}
         <motion.form
           onSubmit={handleLogin}
-          initial={{ x: 60, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{
-            delay: 0.25,
-            type: "keyframes",
-            duration: 1.3,
-            ease: "easeOut",
-          }}
           className="w-1/2 rounded-r-2xl bg-[#eec49b] p-20 flex flex-col gap-5"
         >
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.45, duration: 1.1, ease: "easeOut" }}
-          >
-            <Input
-              label="email"
-              name="email"
-              type="email"
-              placeholder="you@university.edu"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </motion.div>
+          <Input
+            label="email"
+            name="email"
+            type="email"
+            placeholder="you@university.edu"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.55, duration: 1.1, ease: "easeOut" }}
-          >
-            <Input
-              label="password"
-              name="password"
-              placeholder="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </motion.div>
-
-          <motion.div
-            initial={{ y: 16, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.65, duration: 1.1, ease: "easeOut" }}
-            className="flex justify-end"
-          >
-            <Link
-              href={"/forgot-password"}
-              className="text-[#6F6565] underline"
-            >
-              Forget Password?
-            </Link>
-          </motion.div>
+          <Input
+            label="password"
+            name="password"
+            placeholder="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           {error && (
-            <motion.p
-              initial={{ y: 12, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 0.4 }}
-              className="text-red-500 text-sm"
-            >
-              {error}
-            </motion.p>
+            <p className="text-red-500 text-sm">{error}</p>
           )}
 
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.75, duration: 1.1, ease: "easeOut" }}
-            className="flex justify-between items-center"
-          >
-            <Button type="submit" label="Log in" className="bg-[#DC6D18]" />
-          </motion.div>
+          <Button type="submit" label="Log in" className="bg-[#DC6D18]" />
 
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 0.9, duration: 1.1, ease: "easeOut" }}
-            className="flex gap-2"
-          >
-            <button
-              onClick={() =>
-                signIn("google", {
-                  callbackUrl: "/",
-                })
-              }
-              className="flex items-center justify-center gap-3 w-full rounded-md px-4 py-2.5 font-medium text-gray-800 lg:text-2xl shadow-sm transition hover:bg-gray-300 hover:shadow cursor-pointer border border-white"
-            >
-              <FcGoogle className="text-4xl" />
-              <span>Sign in with Google</span>
-            </button>
-
-            <button
-              onClick={() =>
-                signIn("github", {
-                  callbackUrl: "/",
-                })
-              }
-              className="flex items-center justify-center gap-3 w-full rounded-md px-4 py-2.5 font-medium text-gray-800 lg:text-2xl shadow-sm transition hover:bg-gray-300 hover:shadow cursor-pointer border border-white"
-            >
-              <FaGithub className="text-4xl" />
-              <span>Sign in with Github</span>
-            </button>
-          </motion.div>
-
-          <motion.p
-            initial={{ y: 16, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ delay: 1.05, duration: 1.1, ease: "easeOut" }}
-            className="text-black"
-          >
+          <p className="text-black">
             New here?{" "}
             <Link href={"/signup"} className="font-bold">
               Click Sign up
             </Link>{" "}
             above.
-          </motion.p>
+          </p>
         </motion.form>
       </motion.div>
     </div>
